@@ -1,0 +1,6 @@
+package cosmos;
+
+class Entity
+{
+	
+}

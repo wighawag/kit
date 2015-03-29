@@ -1,5 +1,0 @@
-package atom;
-
-class Universe{
-	
-}

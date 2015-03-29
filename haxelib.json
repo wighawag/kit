@@ -29,6 +29,13 @@
       ],
       "description": "IO abstract"
     },
+    "cosmos": {
+      "tags": [
+        ""
+      ],
+      "description": "a type-safe abd performant entity component system",
+      "dependencies": {}
+    },
     "jsloka": {
       "tags": [
         "io",
