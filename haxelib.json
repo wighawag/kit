@@ -1,0 +1,74 @@
+{
+  "libs": {
+    "belt": {
+      "tags": [
+        "cross",
+        "tool",
+        "utility"
+      ],
+      "description": "a utility library"
+    },
+    "boot": {
+      "tags": [
+        "shell",
+        "assets",
+        "time"
+      ],
+      "description": "shell and asset loading"
+    },
+    "glee": {
+      "tags": [
+        "opengl",
+        "cross"
+      ],
+      "description": "opengl wrapper"
+    },
+    "loka": {
+      "tags": [
+        "io"
+      ],
+      "description": "IO abstract"
+    },
+    "jsloka": {
+      "tags": [
+        "io",
+        "js"
+      ],
+      "description": "js implenetation of th eIO"
+    },
+    "korrigan": {
+      "tags": [
+        "sprite"
+      ],
+      "description": "sprite library"
+    },
+    "tri": {
+      "tags": [
+        "3d"
+      ],
+      "description": "3d"
+    },
+    "glmat": {
+      "tags": [
+        "math",
+        "matrix",
+        "gl"
+      ],
+      "description": "matrix using FloatArray"
+    }
+  },
+  "name": "kit",
+  "license": "MIT",
+  "tags": [
+    "cross",
+    "kit"
+  ],
+  "classPath": "src",
+  "description": "A set of library to build stuff",
+  "contributors": [
+    "wighawag"
+  ],
+  "releasenote": "sddsd dsdsa",
+  "version": "0.0.4",
+  "url": "https://github.com/wighawag/kit"
+}

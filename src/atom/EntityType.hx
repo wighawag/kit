@@ -1,0 +1,5 @@
+package atom;
+
+class EntityType{
+	
+}
