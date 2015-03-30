@@ -75,7 +75,7 @@
   "contributors": [
     "wighawag"
   ],
-  "releasenote": "first release, wip",
-  "version": "0.3.0",
+  "releasenote": "add cosmos",
+  "version": "0.4.0",
   "url": "https://github.com/wighawag/kit"
 }
