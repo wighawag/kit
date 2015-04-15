@@ -17,8 +17,8 @@ class Window{
            return _canvas.clientHeight;
         }
 
-        static public function createWindow(inputwidth="100%",inputheight="100%") : Window{
-        	return new Window(inputwidth,inputheight);
+        static public function createWindow(fullscreen:Bool=true,inputwidth="100%",inputheight="100%") : Window{
+        	return new Window(fullscreen,inputwidth,inputheight);
         }
 
         public function resize(){
@@ -31,21 +31,25 @@ class Window{
             }
         }
 
-        public function new(inputwidth="100%",inputheight="100%"){
-        	//_canvas = js.Browser.document.createCanvasElement();
-            _canvas=cast(js.Browser.document.getElementById("canvas"));
-        //assign the sizes
-        /*_canvas.style.width = inputwidth;
-        _canvas.style.height = inputheight;
-*/
-        //make sure it displays nicely
-       /* _canvas.style.display = 'block';
-        _canvas.style.position = 'relative';
-        _canvas.style.margin = '0 auto 0 auto';
-        _canvas.style.background = '#000';*/
+        public function new(fullscreen:Bool=true, inputwidth="100%",inputheight="100%"){
+            if(fullscreen==false){
+            _canvas=cast(js.Browser.document.getElementById("canvas"));}
+            else{
+        	_canvas = js.Browser.document.createCanvasElement();
 
-        //add it to the document
-        /*js.Browser.document.body.appendChild(_canvas);*/
+            //assign the sizes
+            _canvas.style.width = inputwidth;
+            _canvas.style.height = inputheight;
+            
+            //make sure it displays nicely
+             _canvas.style.display = 'block';
+            _canvas.style.position = 'relative';
+            _canvas.style.margin = '0 auto 0 auto';
+            _canvas.style.background = '#000';
+
+            //add it to the document
+            js.Browser.document.body.appendChild(_canvas);
+            }
         	gl = new GL(_canvas.getContextWebGL({}));
         }
 }
