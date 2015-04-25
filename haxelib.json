@@ -14,14 +14,20 @@
         "assets",
         "time"
       ],
-      "description": "shell and asset loading"
+      "description": "shell and asset loading",
+      "dependencies": [
+        "tink_core"
+      ]
     },
     "glee": {
       "tags": [
         "opengl",
         "cross"
       ],
-      "description": "opengl wrapper"
+      "description": "opengl wrapper",
+      "dependencies": [
+        "tink_macro"
+      ]
     },
     "loka": {
       "tags": [
@@ -30,11 +36,8 @@
       "description": "IO abstract"
     },
     "cosmos": {
-      "tags": [
-        ""
-      ],
-      "description": "a type-safe abd performant entity component system",
-      "dependencies": {}
+      "tags": [],
+      "description": "a type-safe abd performant entity component system"
     },
     "jsloka": {
       "tags": [
@@ -77,5 +80,9 @@
   ],
   "releasenote": "add cosmos",
   "version": "0.4.0",
-  "url": "https://github.com/wighawag/kit"
+  "url": "https://github.com/wighawag/kit",
+  "dependencies": {
+    "tink_macro": "0.5.0",
+    "tink_core" "1.0.0-rc.7"
+  }
 }

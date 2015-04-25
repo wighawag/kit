@@ -1,7 +1,7 @@
 package tri;
 
 import glee.GPUBuffer;
-import tri.SimpleProgram;
+import glmat.Vec3;
 
 class Cube{
 	var width : Float;
@@ -14,7 +14,7 @@ class Cube{
 		this.depth = depth;
 	}
 
-	public function write(buffer : GPUBuffer<SimpleProgram>){
+	public function write(buffer : GPUBuffer<{position:Vec3}>){
 		buffer.write_position(-width/2, height/2, -depth/2);	
 		buffer.write_position(-width/2, -height/2, -depth/2);	
 		buffer.write_position(width/2, -height/2, -depth/2);

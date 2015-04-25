@@ -53,7 +53,7 @@ class TransformationContext{
 
 	public function scale (x :Float, y :Float){
 		if (x == 0 || y == 0) {
-			return; // Flash throws an undocumented error if appendScale params are zero
+			return; //TODO check other target as Flash throws an undocumented error if appendScale params are zero
 		}
 		var state = getTopState();
 		state.matrix.scale(state.matrix, x, y, 1);

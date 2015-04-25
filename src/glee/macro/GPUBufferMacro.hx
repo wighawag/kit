@@ -1,5 +1,6 @@
 package glee.macro;
 
+import glee.GLSL.AttributeType.Vec;
 import haxe.macro.Expr;
 import haxe.macro.Context;
 import tink.macro.Functions;
@@ -14,30 +15,62 @@ class GPUBufferMacro{
 	macro static public function apply() : ComplexType{
 
         var pos = Context.currentPos();
-		
-		//trace("Building from generic");
-        var classType = 
-		switch (Context.getLocalType()) {
-			case TInst(_,[t]):
-				switch(t){
-					case TInst(ref,_):
-						 ref.get();
-					case TMono(_): Context.error("need to specify the program type explicitely, no type inference",pos); null; 	
-					default: null;
-				}
-			default: null;
-		}
 
-        if(null){
+        var localType = Context.getLocalType();
+
+        var typeParam = switch (localType) {
+            case TInst(_,[t]):
+                switch(t){
+                    case TType(t,param): t.get().type;
+                    default : t;
+                }
+            default:null;
+        }
+
+        if(typeParam == null){
+            Context.error("type param not found",pos);
+        }
+
+        var fields = switch(typeParam){
+            case TInst(ref,_):
+                 ref.get().fields.get();
+            case TMono(mono):  Context.error("need to specify the program type explicitely, no type inference : " + typeParam + " (" + mono.get() + ")",pos); null; 
+            case TAnonymous(ref):
+                ref.get().fields;
+            default: null;
+        }
+
+        if(fields == null){
+            Context.error("type param not supported " + typeParam, pos);
             return null;
         }
 
-        var metadata = classType.meta.get();
+        var attributes = new Array<glee.GLSLShaderGroup.Attribute>();
+        for (field in fields){
+            switch(field.type){
+                case TAbstract(t,_):
+                    var abstractType = t.get();
+                    if (abstractType.name == "Vec4" && abstractType.pack[0] == "glmat"){
+                        attributes.push({name:field.name, type:Vec(glee.GLSL.AttributeVecType.Float, 4)});
+                    }else if (abstractType.name == "Vec3" && abstractType.pack[0] == "glmat"){
+                        attributes.push({name:field.name, type:Vec(glee.GLSL.AttributeVecType.Float, 3)});
+                    }else if (abstractType.name == "Vec2" && abstractType.pack[0] == "glmat"){
+                        attributes.push({name:field.name, type:Vec(glee.GLSL.AttributeVecType.Float, 2)});
+                    }else{
+                       Context.error("attribute type not supported " + field.type, pos);
+                       return null;
+                    }
+                //TODO Float and Int and IVec
+                default : 
+                    Context.error("attribute type not supported " + field.type, pos);
+                    return null;
+            }
+        }
 
-        var shaderGroup = glee.macro.GPUProgramMacro.getShaderGroupFromMetadata(metadata);
-        
-        
-        return getBufferClassFromAttributes(shaderGroup.attributes);
+
+        var bufferType = getBufferClassFromAttributes(attributes);
+
+        return bufferType;
     }
 
     static public function getBufferClassFromAttributes(attributes : Array<glee.GLSLShaderGroup.Attribute>) : ComplexType{
