@@ -1,7 +1,5 @@
 package glee.macro;
 
-import glee.GLSL.AttributeType;
-import glee.GLSL.UniformType;
 import glee.GLSLShaderGroup;
 import haxe.macro.Expr;
 import haxe.macro.Context;
@@ -105,46 +103,70 @@ class GPUProgramMacro{
             var arguments = [];
 
             var body : Expr = macro _gl.useProgram(_nativeProgram); //TODO do it in draw and save the data to be uploaded
-            switch (uniform.type){
-                case UniformType.Vec2:
-                    arguments.push(Functions.toArg("x", macro : Float));
-                    arguments.push(Functions.toArg("y", macro : Float));
-                    body.append(macro _gl.uniform2f($i{uniformLocationVariableName}, x, y));
-                case UniformType.Vec3:
-                    arguments.push(Functions.toArg("x", macro : Float));
-                    arguments.push(Functions.toArg("y", macro : Float));
-                    arguments.push(Functions.toArg("z", macro : Float));
-                    body.append(macro _gl.uniform3f($i{uniformLocationVariableName}, x, y, z));
-                case UniformType.Vec4:
-                    arguments.push(Functions.toArg("x", macro : Float));
-                    arguments.push(Functions.toArg("y", macro : Float));
-                    arguments.push(Functions.toArg("z", macro : Float));
-                    arguments.push(Functions.toArg("w", macro : Float));
-                    body.append(macro _gl.uniform4f($i{uniformLocationVariableName}, x, y, z, w));
-                case UniformType.Int:
+            var attrTPath = switch(cast uniform.type){
+                case TPath(att): att;
+                default: Context.error("should be a TPath", pos); null;
+            };
+            switch(attrTPath.name){
+                case "Vec2":
+                    //arguments.push(Functions.toArg("x", macro : Float));
+                    //arguments.push(Functions.toArg("y", macro : Float));
+                    //body.append(macro _gl.uniform2f($i{uniformLocationVariableName}, x, y));
+                    arguments.push(Functions.toArg("vec", uniform.type));
+                    body.append(macro _gl.uniform2f($i{uniformLocationVariableName}, vec.x, vec.y));
+                case "Vec3":
+                    //arguments.push(Functions.toArg("x", macro : Float));
+                    //arguments.push(Functions.toArg("y", macro : Float));
+                    //arguments.push(Functions.toArg("z", macro : Float));
+                    //body.append(macro _gl.uniform3f($i{uniformLocationVariableName}, x, y, z));
+                    arguments.push(Functions.toArg("vec", uniform.type));
+                    body.append(macro _gl.uniform3f($i{uniformLocationVariableName}, vec.x, vec.y, vec.z));
+                    
+                case "Vec4":
+                    // arguments.push(Functions.toArg("x", macro : Float));
+                    // arguments.push(Functions.toArg("y", macro : Float));
+                    // arguments.push(Functions.toArg("z", macro : Float));
+                    // arguments.push(Functions.toArg("w", macro : Float));
+                    // body.append(macro _gl.uniform4f($i{uniformLocationVariableName}, x, y, z, w));
+                    arguments.push(Functions.toArg("vec", uniform.type));
+                    body.append(macro _gl.uniform4f($i{uniformLocationVariableName}, vec.x, vec.y, vec.z, vec.w));
+                case "Int":
                     arguments.push(Functions.toArg("x", macro : Int));
                     body.append(macro _gl.uniform1i($i{uniformLocationVariableName}, x));
-                case UniformType.Float:
+                case "Float":
                     arguments.push(Functions.toArg("x", macro : Float));
                     body.append(macro _gl.uniform1f($i{uniformLocationVariableName}, x));
-                case UniformType.Matrix:
-                    arguments.push(Functions.toArg("mat", macro : loka.util.Float32Array));
+                case "Mat4":
+                    //arguments.push(Functions.toArg("mat", macro : loka.util.Float32Array));
+                    //body.append(macro _gl.uniformMatrix4fv($i{uniformLocationVariableName}, false, mat));
+                    arguments.push(Functions.toArg("mat", uniform.type));
                     body.append(macro _gl.uniformMatrix4fv($i{uniformLocationVariableName}, false, mat));
-                case UniformType.Sampler2D:
-                    arguments.push(Functions.toArg("texture", macro : glee.GPUTexture));
-                    body.append(macro _gl.activeTexture (loka.gl.GL.TEXTURE0 + $v{numTexture})); //TODO store texture index
+                case "GPUTexture":
+                    //arguments.push(Functions.toArg("texture", macro : glee.GPUTexture));
+                    //body.append(macro _gl.activeTexture (loka.gl.GL.TEXTURE0 + $v{numTexture})); //TODO store the texture Index                 
+                    //body.append(macro _gl.bindTexture (loka.gl.GL.TEXTURE_2D, texture.nativeTexture));
+                    //body.append(macro _gl.uniform1i($i{uniformLocationVariableName}, $v{numTexture}));
+                    //numTexture ++;
+                    arguments.push(Functions.toArg("texture", uniform.type));
+                    body.append(macro _gl.activeTexture (loka.gl.GL.TEXTURE0 + $v{numTexture})); //TODO store the texture Index                   
                     body.append(macro _gl.bindTexture (loka.gl.GL.TEXTURE_2D, texture.nativeTexture));
-                    body.append(macro _gl.uniform1i($i{uniformLocationVariableName}, $v{numTexture}));//TODO store texture index
+                    body.append(macro _gl.uniform1i($i{uniformLocationVariableName}, $v{numTexture}));                    
                     numTexture ++;
-                case UniformType.SamplerCube:
-                    arguments.push(Functions.toArg("texture", macro : glee.GPUCubeTexture));
-                    body.append(macro _gl.activeTexture (loka.gl.GL.TEXTURE0 + $v{numTexture})); //TODO store texture index
+                case "GPUCubeTexture":
+                    //arguments.push(Functions.toArg("texture", macro : glee.GPUCubeTexture));
+                    //body.append(macro _gl.activeTexture (loka.gl.GL.TEXTURE0 + $v{numTexture})); //TODO store the texture Index
+                    //body.append(macro _gl.bindTexture (loka.gl.GL.TEXTURE_CUBE_MAP, texture.nativeTexture));
+                    //body.append(macro _gl.uniform1i($i{uniformLocationVariableName}, $v{numTexture}));/
+                    //numTexture ++;
+                    arguments.push(Functions.toArg("texture", uniform.type));
+                    body.append(macro _gl.activeTexture (loka.gl.GL.TEXTURE0 + $v{numTexture})); 
                     body.append(macro _gl.bindTexture (loka.gl.GL.TEXTURE_CUBE_MAP, texture.nativeTexture));
-                    body.append(macro _gl.uniform1i($i{uniformLocationVariableName}, $v{numTexture}));//TODO store texture index
+                    body.append(macro _gl.uniform1i($i{uniformLocationVariableName}, $v{numTexture}));//TODO store the texture Index
                     numTexture ++;
                 //default :
                 //    throw "" + uniform.type + " not supported yet";
             }
+            
 
             var member = Member.method("set_" + uniform.name,Functions.func(body, arguments,null,null,false));
             classBuilder.addMember(member);
@@ -155,11 +177,21 @@ class GPUProgramMacro{
         var attributes = shaderGroup.attributes;
 
         //TODO remove duplication (see GPUBufferMacro)
+
+        
         var totalStride : Int = 0;
         for (attribute in attributes){
-            var numValues = switch(attribute.type){
-                case Vec(_,num):num;
-                case Float:1;
+            var numValues = 1;
+            var attrTPath = switch(cast attribute.type){
+                case TPath(att): att;
+                default: Context.error("should be a TPath", pos); null;
+            };
+            if(attrTPath.name == "Vec4"){
+                numValues = 4;
+            }else if(attrTPath.name == "Vec3"){
+                numValues = 3;
+            }else if(attrTPath.name == "Vec2"){
+                numValues = 2;
             }
             totalStride+= numValues; //work for samme types attributes //TODO make it work for mixed types Int/Float...
         }         
@@ -174,9 +206,18 @@ class GPUProgramMacro{
             var attributeName = attribute.name;
             var attributeLocationVariableName = "_" + attributeName + "_shaderLocation";
 
-            var numValues = switch(attribute.type){
-                case Vec(_,num):num;
-                case Float:1;
+
+            var numValues = 1;
+            var attrTPath = switch(cast attribute.type){
+                case TPath(att): att;
+                default: Context.error("should be a TPath", pos); null;
+            };
+            if(attrTPath.name == "Vec4"){
+                numValues = 4;
+            }else if(attrTPath.name == "Vec3"){
+                numValues = 3;
+            }else if(attrTPath.name == "Vec2"){
+                numValues = 2;
             }
 
             classBuilder.addMember({

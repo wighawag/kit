@@ -1,26 +1,7 @@
 package glee;
 
 import haxe.macro.Context;
-
-enum UniformType{
-	Vec2;
-	Vec4;
-	Vec3;
-	Matrix;
-	Sampler2D;
-	SamplerCube;
-	Float;
-	Int;
-}
-
-enum AttributeVecType{
-	Float;
-	Int;
-}
-enum AttributeType{
-	Vec(type:AttributeVecType,num: Int);
-	Float;
-}
+import haxe.macro.Expr.ComplexType;
 
 class GLSL{
 
@@ -43,8 +24,8 @@ class GLSL{
 		return lines.join("\n");
 	}
 
-	static function parseAttributes(lines:Array<String>) : Map<String,AttributeType> {
-		var attributes = new Map<String,AttributeType>();
+	static function parseAttributes(lines:Array<String>) : Map<String,ComplexType> {
+		var attributes = new Map<String,ComplexType>();
 		for (l in lines) {
 			if (l.indexOf("attribute") > -1) {
 				
@@ -54,10 +35,10 @@ class GLSL{
 
 				var attributeTypeString = args[0];
 				var attributeType = switch(attributeTypeString){
-					case "vec4": AttributeType.Vec(AttributeVecType.Float,4);
-					case "vec3": AttributeType.Vec(AttributeVecType.Float,3);
-					case "vec2": AttributeType.Vec(AttributeVecType.Float,2);
-					case "float": AttributeType.Float;
+					case "vec4": TPath({name:"Vec4", pack:["glmat"]});
+					case "vec3": TPath({name:"Vec3", pack:["glmat"]});
+					case "vec2": TPath({name:"Vec2", pack:["glmat"]});
+					case "float": TPath({name:"Float", pack:[]});
 					default: trace("attribute type not supported: " + attributeTypeString); null;
 				}
 				if(attributeType != null){
@@ -68,8 +49,8 @@ class GLSL{
 		return attributes;
 	}
 
-	static function parseUniforms(lines:Array<String>) : Map<String,UniformType> {
-		var uniforms = new Map<String,UniformType>();
+	static function parseUniforms(lines:Array<String>) : Map<String,ComplexType> {
+		var uniforms = new Map<String,ComplexType>();
 		for (l in lines) {
 			if (l.indexOf("uniform") > -1) {
 				var source = StringTools.trim(l);
@@ -95,13 +76,13 @@ class GLSL{
 				}
 				
 				var uniformType = switch(uniformTypeString){
-					case "sampler2D": UniformType.Sampler2D;
-					case "samplerCube": UniformType.SamplerCube;
-					case "mat4": UniformType.Matrix;
-					case "vec4": UniformType.Vec4;
-					case "vec3": UniformType.Vec3;
-					case "vec2": UniformType.Vec2;
-					case "float": UniformType.Float;
+					case "sampler2D":  TPath({name:"GPUTexture", pack:["glee"]});
+					case "samplerCube": TPath({name:"GPUCubeTexture", pack:["glee"]});
+					case "mat4": TPath({name:"Mat4", pack:["glmat"]});
+					case "vec4": TPath({name:"Vec4", pack:["glmat"]});
+					case "vec3": TPath({name:"Vec3", pack:["glmat"]});
+					case "vec2": TPath({name:"Vec2", pack:["glmat"]});
+					case "float": TPath({name:"Float", pack:[]});
 					default: trace("uniform type not supported: " + uniformTypeString); null;
 				}
 				if(uniformType != null){
@@ -140,11 +121,11 @@ class GLSL{
 		return new GLSL(shader,attributes,uniforms);
 	}
 
-	public var attributes(default, null) : Map<String,AttributeType>;
-	public var uniforms(default, null) : Map<String,UniformType>;
+	public var attributes(default, null) : Map<String,ComplexType>;
+	public var uniforms(default, null) : Map<String,ComplexType>;
 	public var source(default,null) : String;
 
-	public function new(source : String, attributes : Map<String, AttributeType>, uniforms : Map<String, UniformType>){
+	public function new(source : String, attributes : Map<String, ComplexType>, uniforms : Map<String, ComplexType>){
 		this.attributes = attributes;
 		this.uniforms = uniforms;
 		this.source = source;

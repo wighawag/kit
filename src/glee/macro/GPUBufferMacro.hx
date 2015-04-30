@@ -1,6 +1,5 @@
 package glee.macro;
 
-import glee.GLSL.AttributeType.Vec;
 import haxe.macro.Expr;
 import haxe.macro.Context;
 import tink.macro.Functions;
@@ -19,12 +18,29 @@ class GPUBufferMacro{
         var localType = Context.getLocalType();
 
         var typeParam = switch (localType) {
-            case TInst(_,[t]):
-                switch(t){
+            case TInst(_,[tp]):
+                switch(tp){
                     case TType(t,param): t.get().type;
-                    default : t;
+                    case TAnonymous(t) : tp;
+                    default : null;
                 }
             default:null;
+        }
+        if(typeParam == null){
+            //Still alow specifying buffer via their porgram
+            switch (localType) {
+            case TInst(_,[t]):
+                switch(t){
+                    case TInst(ref,_):
+                        var programType = ref.get();
+                        var metadata = programType.meta.get();
+                        var shaderGroup = glee.macro.GPUProgramMacro.getShaderGroupFromMetadata(metadata);
+-                       return getBufferClassFromAttributes(shaderGroup.attributes);
+                    case TMono(_): Context.error("need to specify the program type explicitly, no type inference supported", pos);
+                    default: Context.error("unsuported type : " +  localType, pos);
+                }
+                default: Context.error("unsuported type : " +  localType, pos);
+            }
         }
 
         if(typeParam == null){
@@ -50,17 +66,12 @@ class GPUBufferMacro{
             switch(field.type){
                 case TAbstract(t,_):
                     var abstractType = t.get();
-                    if (abstractType.name == "Vec4" && abstractType.pack[0] == "glmat"){
-                        attributes.push({name:field.name, type:Vec(glee.GLSL.AttributeVecType.Float, 4)});
-                    }else if (abstractType.name == "Vec3" && abstractType.pack[0] == "glmat"){
-                        attributes.push({name:field.name, type:Vec(glee.GLSL.AttributeVecType.Float, 3)});
-                    }else if (abstractType.name == "Vec2" && abstractType.pack[0] == "glmat"){
-                        attributes.push({name:field.name, type:Vec(glee.GLSL.AttributeVecType.Float, 2)});
+                    if(abstractType.pack.length == 1 && abstractType.pack[0] == "glmat"){
+                        attributes.push({name:field.name, type:TPath({name :abstractType.name, pack :abstractType.pack})});    
                     }else{
-                       Context.error("attribute type not supported " + field.type, pos);
-                       return null;
+                        Context.error("attribute type not supported " + abstractType, pos);
+                        return null; 
                     }
-                //TODO Float and Int and IVec
                 default : 
                     Context.error("attribute type not supported " + field.type, pos);
                     return null;
@@ -93,10 +104,19 @@ class GPUBufferMacro{
         
 
         var totalStride : Int = 0;
+
         for (attribute in attributes){
-            var numValues = switch(attribute.type){
-                case Vec(_,num):num;
-                case Float:1;
+            var numValues = 1;
+            var attrTPath = switch(cast attribute.type){
+                case TPath(att): att;
+                default: Context.error("should be a TPath", pos); null;
+            };
+            if(attrTPath.name == "Vec4"){
+                numValues = 4;
+            }else if(attrTPath.name == "Vec3"){
+                numValues = 3;
+            }else if(attrTPath.name == "Vec2"){
+                numValues = 2;
             }
             totalStride+= numValues; //work for samme types attributes //TODO make it work for mixed types Int/Float...
         }         
@@ -110,9 +130,17 @@ class GPUBufferMacro{
 
             rewindBody.append(macro  $i{attributeMetadataName} = 0);
 
-            var numValues = switch(attribute.type){
-                case Vec(_,num):num;
-                case Float:1;
+            var numValues = 1;
+            var attrTPath = switch(cast attribute.type){
+                case TPath(att): att;
+                default: Context.error("should be a TPath", pos); null;
+            };
+            if(attrTPath.name == "Vec4"){
+                numValues = 4;
+            }else if(attrTPath.name == "Vec3"){
+                numValues = 3;
+            }else if(attrTPath.name == "Vec2"){
+                numValues = 2;
             }
 
             //////////////////////initialization //////////////////////////////////////////
@@ -150,24 +178,23 @@ class GPUBufferMacro{
 
             //trace(body.toString());
 
-            var arguments = [];
-            switch(attribute.type){
-                case glee.GLSL.AttributeType.Vec(vecType,num):
-                    for (i in 0...num){
-                        arguments.push(
-                        switch(vecType){
-                            case glee.GLSL.AttributeVecType.Float:
-                                Functions.toArg("v"+i,macro : Float);
-                            case glee.GLSL.AttributeVecType.Int:
-                                Functions.toArg("v"+i,macro : Int);
-                        }
-                        );
-                    }
-                case glee.GLSL.AttributeType.Float:
-                    arguments.push(
-                        Functions.toArg("v0",macro : Float)
-                        ); 
-            }
+            var arguments = [];                                         
+            var attrTPath = switch(cast attribute.type){
+                case TPath(att): att;
+                default: Context.error("should be a TPath", pos); null;
+            };                              
+            
+            if(attrTPath.name.substr(0,3) == "Vec"){          
+                for (i in 0...numValues){                                 
+                    arguments.push(                                 
+                    Functions.toArg("v"+i,macro : Float)
+                    );                                              
+                }                                                   
+            }else if(attrTPath.name == "Float"){
+                arguments.push(                                     
+                    Functions.toArg("v0",macro : Float)             
+                    );                    
+            } 
             
             fields.push(Member.method("write_" + attribute.name,Functions.func(body,arguments)));            
             stride+= numValues; //work for samme types attributes //TODO make it work for mixed types Int/Float...

@@ -11,6 +11,12 @@ abstract Vec3(Float32Array){
 	    this[2] = z;
 	}
 
+	inline public function set(?x:Float=0,?y:Float=0,?z:Float=0){
+		this[0] = x;
+	    this[1] = y;
+	    this[2] = z;
+	}
+
 	public var x(get,set):Float;
 	inline function get_x():Float{return this[0];}
 	inline function set_x(v:Float):Float{

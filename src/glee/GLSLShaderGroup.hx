@@ -1,17 +1,16 @@
 package glee;
 
 import haxe.macro.Context;
-import glee.GLSL.AttributeType;
-import glee.GLSL.UniformType;
+import haxe.macro.Expr;
 
 typedef Uniform = {
 	name : String,
-	type : UniformType
+	type : ComplexType
 }
 
 typedef Attribute = {
 	name : String,
-	type : AttributeType
+	type : ComplexType
 }
 
 
