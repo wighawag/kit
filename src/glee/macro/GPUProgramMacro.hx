@@ -109,27 +109,27 @@ class GPUProgramMacro{
             };
             switch(attrTPath.name){
                 case "Vec2":
-                    //arguments.push(Functions.toArg("x", macro : Float));
-                    //arguments.push(Functions.toArg("y", macro : Float));
-                    //body.append(macro _gl.uniform2f($i{uniformLocationVariableName}, x, y));
-                    arguments.push(Functions.toArg("vec", uniform.type));
-                    body.append(macro _gl.uniform2f($i{uniformLocationVariableName}, vec.x, vec.y));
+                    arguments.push(Functions.toArg("x", macro : Float));
+                    arguments.push(Functions.toArg("y", macro : Float));
+                    body.append(macro _gl.uniform2f($i{uniformLocationVariableName}, x, y));
+                    //arguments.push(Functions.toArg("vec", uniform.type));
+                    //body.append(macro _gl.uniform2f($i{uniformLocationVariableName}, vec.x, vec.y));
                 case "Vec3":
-                    //arguments.push(Functions.toArg("x", macro : Float));
-                    //arguments.push(Functions.toArg("y", macro : Float));
-                    //arguments.push(Functions.toArg("z", macro : Float));
-                    //body.append(macro _gl.uniform3f($i{uniformLocationVariableName}, x, y, z));
-                    arguments.push(Functions.toArg("vec", uniform.type));
-                    body.append(macro _gl.uniform3f($i{uniformLocationVariableName}, vec.x, vec.y, vec.z));
+                    arguments.push(Functions.toArg("x", macro : Float));
+                    arguments.push(Functions.toArg("y", macro : Float));
+                    arguments.push(Functions.toArg("z", macro : Float));
+                    body.append(macro _gl.uniform3f($i{uniformLocationVariableName}, x, y, z));
+                    //arguments.push(Functions.toArg("vec", uniform.type));
+                    //body.append(macro _gl.uniform3f($i{uniformLocationVariableName}, vec.x, vec.y, vec.z));
                     
                 case "Vec4":
-                    // arguments.push(Functions.toArg("x", macro : Float));
-                    // arguments.push(Functions.toArg("y", macro : Float));
-                    // arguments.push(Functions.toArg("z", macro : Float));
-                    // arguments.push(Functions.toArg("w", macro : Float));
-                    // body.append(macro _gl.uniform4f($i{uniformLocationVariableName}, x, y, z, w));
-                    arguments.push(Functions.toArg("vec", uniform.type));
-                    body.append(macro _gl.uniform4f($i{uniformLocationVariableName}, vec.x, vec.y, vec.z, vec.w));
+                    arguments.push(Functions.toArg("x", macro : Float));
+                    arguments.push(Functions.toArg("y", macro : Float));
+                    arguments.push(Functions.toArg("z", macro : Float));
+                    arguments.push(Functions.toArg("w", macro : Float));
+                     body.append(macro _gl.uniform4f($i{uniformLocationVariableName}, x, y, z, w));
+                    //arguments.push(Functions.toArg("vec", uniform.type));
+                    //body.append(macro _gl.uniform4f($i{uniformLocationVariableName}, vec.x, vec.y, vec.z, vec.w));
                 case "Int":
                     arguments.push(Functions.toArg("x", macro : Int));
                     body.append(macro _gl.uniform1i($i{uniformLocationVariableName}, x));

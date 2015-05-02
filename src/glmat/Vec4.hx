@@ -4,12 +4,12 @@ import loka.util.Float32Array;
 
 abstract Vec4(Float32Array){
 
-	inline public function new(?x:Float=0,?y:Float=0,?z:Float=0){
+	inline public function new(?x:Float=0,?y:Float=0,?z:Float=0, ?w:Float=0){
 		this = new Float32Array(4);
 	    this[0] = x;
 	    this[1] = y;
 	    this[2] = z;
-	    this[3] = 0;
+	    this[3] = w; //TODO w ? remove Vec from GLSL
 	}
 
 	public var x(get,set):Float;

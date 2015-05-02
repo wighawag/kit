@@ -24,8 +24,6 @@ typedef TexturePlacement = {
     dstX4 : Float,
     dstY4 : Float,
     dstZ : Float,
-    baryX:Float,
-    baryY:Float,
 }
 
 class TexturedQuadMesh{
@@ -156,15 +154,9 @@ class SpriteLibrary{
         }
 	}
 
-	public function draw(buffer : glee.GPUBuffer<NormalTexturedProgram>, context : korrigan.TransformationContext, spriteId : String, animationName : String, elapsedTime : Float, x : Float, y : Float, z : Float, angle_z:Float, ?width : Float = 0, ?height : Float = 0, ?keepRatio : Bool = true) : Void{
-		var placement = getTexturePlacement(context, spriteId, animationName, elapsedTime,x,y,z,angle_z,width,height,keepRatio);
-        buffer.write_barycentre(placement.baryX, placement.baryY);
-        buffer.write_barycentre(placement.baryX, placement.baryY);
-        buffer.write_barycentre(placement.baryX, placement.baryY);
-        buffer.write_barycentre(placement.baryX, placement.baryY);
-        buffer.write_barycentre(placement.baryX, placement.baryY);
-        buffer.write_barycentre(placement.baryX, placement.baryY);
-                
+	public function draw(buffer : glee.GPUBuffer<NormalTexturedProgram>, context : korrigan.TransformationContext, spriteId : String, animationName : String, elapsedTime : Float, x : Float, y : Float, z : Float, ?width : Float = 0, ?height : Float = 0, ?keepRatio : Bool = true) : Void{
+		var placement = getTexturePlacement(context, spriteId, animationName, elapsedTime,x,y,z,width,height,keepRatio);
+
 		buffer.write_position(placement.dstX1, placement.dstY1, z);	
 		buffer.write_position(placement.dstX3, placement.dstY3, z);
 		buffer.write_position(placement.dstX2, placement.dstY2, z);
@@ -189,7 +181,7 @@ class SpriteLibrary{
         buffer.write_texCoords(placement.srcX1, placement.srcY2);
 	}
 
-	public function getTexturePlacement(context : korrigan.TransformationContext, spriteId : String, animationName : String, elapsedTime : Float, x : Float, y : Float, z : Float, angle_z:Float, ?width : Float = 0, ?height : Float = 0, ?keepRatio : Bool = true) : TexturePlacement{
+	public function getTexturePlacement(context : korrigan.TransformationContext, spriteId : String, animationName : String, elapsedTime : Float, x : Float, y : Float, z : Float, ?width : Float = 0, ?height : Float = 0, ?keepRatio : Bool = true) : TexturePlacement{
 		var sprite = _sprites[spriteId];
 	    
 	    var frame : Frame = null;
@@ -253,47 +245,38 @@ class SpriteLibrary{
             var rectX2 = targetX + meshWidth * scaleX;
             var rectY2 = targetY + meshHeight * scaleY;
 
-            var cosZ = Math.cos(angle_z);
-            var sinZ = Math.sin(angle_z);
             var vec = new Vec4();
             vec.x = rectX1;
             vec.y = rectY1;
             vec.z = z;
             vec.w = 1;
             context.transform(vec);
-
-            var dstX1 = vec.x*cosZ-vec.y*sinZ;
-            var dstY1 = vec.y*cosZ+vec.x*sinZ;
+            var dstX1 = vec.x;
+            var dstY1 = vec.y;
 
             vec.x = rectX2;
             vec.y = rectY1;
             vec.z = z;
             vec.w = 1;
             context.transform(vec);
-      
-            var dstX2 = vec.x*cosZ-vec.y*sinZ;
-            var dstY2 = vec.y*cosZ+vec.x*sinZ;
+            var dstX2 = vec.x;
+            var dstY2 = vec.y;
 
             vec.x = rectX1;
             vec.y = rectY2;
             vec.z = z;
             vec.w = 1;
             context.transform(vec);
-        
-            var dstX3 = vec.x*cosZ-vec.y*sinZ;
-            var dstY3 = vec.y*cosZ+vec.x*sinZ;
+            var dstX3 = vec.x;
+            var dstY3 = vec.y;
 
             vec.x = rectX2;
             vec.y = rectY2;
             vec.z = z;
             vec.w = 1;
             context.transform(vec);
-    
-            var dstX4 = vec.x*cosZ-vec.y*sinZ;
-            var dstY4 = vec.y*cosZ+vec.x*sinZ;
-
-            var baryX=(dstX1+dstX2+dstX3+dstX4)/4;
-            var baryY=(dstY1+dstY2+dstY3+dstY4)/4;
+            var dstX4 = vec.x;
+            var dstY4 = vec.y;
 
             return {
                 //textureId :textureCutOut.textureId,
@@ -310,12 +293,8 @@ class SpriteLibrary{
                 dstX4 : dstX4,
                 dstY4 : dstY4,
                 dstZ : z,
-                baryX:baryX,
-                baryY:baryY,
            };
         }
-
-
 	}
 
 }
