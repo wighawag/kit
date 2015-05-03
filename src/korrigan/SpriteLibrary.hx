@@ -234,11 +234,11 @@ class SpriteLibrary{
                 scaleX = scaleY = Math.min(scaleX,scaleY);
             }
 
-            var offsetX = mesh.refX * frame.scaleX;
+            var offsetX = mesh.refX * frame.scaleX; 
             var offsetY = mesh.refY * frame.scaleY;
 
-            var targetX = x - (offsetX * scaleX);
-            var targetY = y - (offsetY * scaleY);
+            var targetX = - (offsetX * scaleX);
+            var targetY = - (offsetY * scaleY);
 
             var rectX1 = targetX;
             var rectY1 = targetY;
@@ -284,14 +284,14 @@ class SpriteLibrary{
                 srcY1 : mesh.v1,
                 srcX2 : mesh.u2,
                 srcY2 : mesh.v2,
-                dstX1 : dstX1,
-                dstY1 : dstY1,
-                dstX2 : dstX2,
-                dstY2 : dstY2,
-                dstX3 : dstX3,
-                dstY3 : dstY3,
-                dstX4 : dstX4,
-                dstY4 : dstY4,
+                dstX1 : dstX1 + x,
+                dstY1 : dstY1 + y,
+                dstX2 : dstX2 + x,
+                dstY2 : dstY2 + y,
+                dstX3 : dstX3 + x,
+                dstY3 : dstY3 + y,
+                dstX4 : dstX4 + x,
+                dstY4 : dstY4 + y,
                 dstZ : z,
            };
         }
