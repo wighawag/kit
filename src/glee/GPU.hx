@@ -7,7 +7,18 @@ import glee.GPUTexture;
 
 class GPU{
 	
-	public var gl(default,null) : GL;
+	static var _gpu : GPU;
+
+	public var gl(default,null) : GL; //TODO should it be public?
+
+
+	static inline public function init(gl : GL) : GPU{
+		if(_gpu != null){
+			trace("ERROR : GPU already initialised");
+			return null;
+		}
+		return new GPU(gl);
+	} 
 
 	inline public function new(gl : GL){
 		this.gl = gl;
