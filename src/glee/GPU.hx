@@ -18,9 +18,12 @@ typedef GPUOption = {
 enum ViewportType{
 	Manual;
 	Fixed(width : Int, height :Int); 
-	Stretch;
-	KeepRatioWithBorder(width : Int, height :Int);
-	KeepRatioWithCropping(width : Int, height :Int);
+	Fill;
+	FillUpToRatios(minRatio : Float, maxRatio : Float);
+	KeepRatioUsingBorder(width : Int, height :Int);
+	KeepRatioUsingCropping(width : Int, height :Int);
+	KeepRatioUsingBorderWithoutScalingUp(width : Int, height :Int);
+	KeepRatioUsingCroppingWithoutScalingUp(width : Int, height :Int);
 }
 
 enum ViewportPosition{
@@ -51,10 +54,10 @@ class GPU{
 	public var windowHeight(default,null) : Float = 0;
 
 	var _viewportChangeCallback : Int->Int->Int->Int->Void;
-	public var viewportiewportX(default,null) : Float = 0;
-	public var viewportY(default,null) : Float = 0;
-	public var viewportWidth(default,null) : Float = 0;
-	public var viewportHeight(default,null) : Float = 0;	
+	public var viewportX(default,null) : Int = 0;
+	public var viewportY(default,null) : Int = 0;
+	public var viewportWidth(default,null) : Int = 0;
+	public var viewportHeight(default,null) : Int = 0;	
 
 	var _currentProgram : GPUProgram;
 
@@ -77,7 +80,7 @@ class GPU{
 
 		this.gl = _window.getGL();
 		var defaultOption : GPUOption = {
-			viewportType:Stretch,
+			viewportType:Fill,
 			viewportPosition:Center,
 			maxHDPI:1
 		};
@@ -118,26 +121,64 @@ class GPU{
 		var height = windowHeight;
 		switch(_option.viewportType){
 			case Manual : return;
-			case Stretch : 
+			case Fill : 
 				width = untyped gl.drawingBufferWidth;
 				height = untyped gl.drawingBufferHeight;
+			case FillUpToRatios(minRatio, maxRatio):
+				var drawingBufferWidth = untyped gl.drawingBufferWidth;
+				var drawingBufferHeight = untyped gl.drawingBufferHeight;
+				if (drawingBufferWidth / drawingBufferHeight > maxRatio){
+					width = drawingBufferHeight * maxRatio;
+					height = drawingBufferHeight;
+				}else if(drawingBufferWidth / drawingBufferHeight < minRatio){
+					width = drawingBufferHeight;
+					height = drawingBufferHeight * minRatio;
+				}else{
+					width = drawingBufferWidth;
+					height = drawingBufferHeight;
+				}
+				
 			case Fixed(w,h) : 
 				width = w;
 				height = h;
-			case KeepRatioWithBorder(w,h):
-				if(width/w > height/h){
-					width = w * (height/h); 
+			case KeepRatioUsingBorder(w,h):
+				var widthRatio = width/w;
+				var heightRatio = height/h;
+				if(widthRatio > heightRatio){
+					width = w * heightRatio; 
 				}else{
-					height = h * (width/w); 
+					height = h * widthRatio; 
 				}
-			case KeepRatioWithCropping(w,h):
-				if(width/w < height/h){
-					width = w * (height/h); 
+			case KeepRatioUsingBorderWithoutScalingUp(w,h):
+				var widthRatio = width/w;
+				var heightRatio = height/h;
+				if(widthRatio > 1 || heightRatio > 1){
+					width = w;
+					height = h;
+				}else if(widthRatio > heightRatio){
+					width = w * heightRatio; 
 				}else{
-					height = h * (width/w); 
+					height = h * widthRatio; 
 				}
-
-
+			case KeepRatioUsingCropping(w,h):
+				var widthRatio = width/w;
+				var heightRatio = height/h;
+				if(widthRatio < heightRatio){
+					width = w * heightRatio; 
+				}else{
+					height = h * widthRatio; 
+				}
+			case KeepRatioUsingCroppingWithoutScalingUp(w,h):
+				var widthRatio = width/w;
+				var heightRatio = height/h;
+				if(widthRatio > 1 || heightRatio > 1){
+					width = w;
+					height = h;
+				}else if(widthRatio < heightRatio){
+					width = w * heightRatio; 
+				}else{
+					height = h * widthRatio; 
+				}
 		}
 		//TODO add option to not scale up?
 
@@ -180,14 +221,18 @@ class GPU{
 		_setViewPort(x,y, width, height);
 	}
 
-	public function setviewportChangeCallback(callback : Int->Int->Int->Int->Void){
+	public function setViewportChangeCallback(callback : Int->Int->Int->Int->Void){
 		_viewportChangeCallback = callback;
 	}
 
 	inline private function _setViewPort(x : Float, y : Float, width : Float, height : Float){
-		gl.viewport(Std.int(x), Std.int(y), Std.int(width) ,  Std.int(height));
+		viewportX = Std.int(x);
+		viewportY = Std.int(y);
+		viewportWidth = Std.int(width);
+		viewportHeight = Std.int(height);
+		gl.viewport(viewportX, viewportY, viewportWidth, viewportHeight);
 		if(_viewportChangeCallback != null){
-			_viewportChangeCallback(Std.int(x), Std.int(y), Std.int(width) ,  Std.int(height));
+			_viewportChangeCallback(viewportX, viewportY, viewportWidth , viewportHeight);
 		}
 	}
 
