@@ -22,15 +22,14 @@ class Window{
 	function new(canvas : CanvasElement, gl : GL){ //TODO : make Window constructor private and access via friend (App.initWindow)
 		_canvas = canvas;
 		_gl = gl;
-		_canvas.addEventListener("resize",onResized);
-		onResized(null);
+		onResized();
 	}
 
 	public function setOnResizeCallback(callback : Float->Float->Void){
 		_resizeCallback = callback;
 	}
 
-	function onResized(event : Event){
+	inline function onResized(){
 		width = _canvas.clientWidth;
 		height = _canvas.clientHeight;
 		resizeCanvas();
@@ -40,10 +39,14 @@ class Window{
 	}
 
 	function resizeCanvas(){ 
-		//TODO hdpi
-	    if (_canvas.width != width || _canvas.height != height) {
-	        _canvas.width = Std.int(width);
-	        _canvas.height = Std.int(height);
+		//TODO make it an option
+		var realToCSSPixels = Browser.window.devicePixelRatio != null ? Browser.window.devicePixelRatio  : 1;
+		var displayWidth  = Math.floor(width * realToCSSPixels);
+		var displayHeight = Math.floor(height * realToCSSPixels);
+	    
+	    if (_canvas.width != displayWidth || _canvas.height != displayHeight) {
+	        _canvas.width = displayWidth;
+	        _canvas.height = displayHeight;
 	    }
 	}
 
@@ -59,6 +62,9 @@ class Window{
 	}
 
 	function internalRender(t : Float){//TODO : could use "t" as now if the corss platform implementation time util return the same value
+		if(width != _canvas.clientWidth || height != _canvas.clientHeight){
+			onResized();
+		}
 		var now = Timer.stamp(); //TODO use a cross platform performant implementation (see js : Performance.now())
 		_render(now);
 		Browser.window.requestAnimationFrame(internalRender);

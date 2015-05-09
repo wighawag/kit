@@ -9,9 +9,30 @@ import glee.GPUTexture;
 import loka.Window;
 
 typedef GPUOption = {
-	?autoViewPort : Bool,
+	?viewportType : ViewportType,
+	?viewportPosition : ViewportPosition,
 	?maxHDPI : Int  //TODO
 	//?window : Window
+}
+
+enum ViewportType{
+	Manual;
+	Fixed(width : Int, height :Int); 
+	Stretch;
+	KeepRatioWithBorder(width : Int, height :Int);
+	KeepRatioWithCropping(width : Int, height :Int);
+}
+
+enum ViewportPosition{
+	TopLeft;
+	Top;
+	TopRight;
+	Right;
+	BottomRight;
+	Bottom;
+	BottomLeft;
+	Left;
+	Center;
 }
 
 class GPU{
@@ -24,11 +45,18 @@ class GPU{
 	var _option : GPUOption;
 
 	var _render : RenderFunction;
+	
 	var _windowResizeCallback : Float->Float->Void;
-
 	public var windowWidth(default,null) : Float = 0;
 	public var windowHeight(default,null) : Float = 0;
 
+	var _viewportChangeCallback : Int->Int->Int->Int->Void;
+	public var viewportiewportX(default,null) : Float = 0;
+	public var viewportY(default,null) : Float = 0;
+	public var viewportWidth(default,null) : Float = 0;
+	public var viewportHeight(default,null) : Float = 0;	
+
+	var _currentProgram : GPUProgram;
 
 	static inline public function init(?option : GPUOption) : GPU{
 		if(_gpu != null){
@@ -49,14 +77,16 @@ class GPU{
 
 		this.gl = _window.getGL();
 		var defaultOption : GPUOption = {
-			autoViewPort:true,
+			viewportType:Stretch,
+			viewportPosition:Center,
 			maxHDPI:1
 		};
 		if(option != null){
-			option.autoViewPort = option.autoViewPort == null ? defaultOption.autoViewPort : option.autoViewPort;
+			option.viewportType = option.viewportType == null ? defaultOption.viewportType : option.viewportType;
+			option.viewportPosition = option.viewportPosition == null ? defaultOption.viewportPosition : option.viewportPosition;
 			option.maxHDPI = option.maxHDPI == null ? defaultOption.maxHDPI : option.maxHDPI;
 		}else{
-			_option = defaultOption;
+			option = defaultOption;
 		} 
 		_option =option;
 
@@ -72,25 +102,93 @@ class GPU{
 	function onWindowResized(width : Float, height : Float){
 		windowWidth = width;
 		windowHeight = height;
-		if(_option.autoViewPort){
-			_setViewPort(0, 0, windowWidth, windowHeight);
-		}
+		
 		if(_windowResizeCallback != null){
 			_windowResizeCallback(width,height);
 		}
+		setViewportAutomatically();
 	}
 
 	public function setRenderFunction(render : RenderFunction){
 		_window.setRenderFunction(render);
 	}
 
+	function setViewportAutomatically(){
+		var width = windowWidth;
+		var height = windowHeight;
+		switch(_option.viewportType){
+			case Manual : return;
+			case Stretch : 
+				width = untyped gl.drawingBufferWidth;
+				height = untyped gl.drawingBufferHeight;
+			case Fixed(w,h) : 
+				width = w;
+				height = h;
+			case KeepRatioWithBorder(w,h):
+				if(width/w > height/h){
+					width = w * (height/h); 
+				}else{
+					height = h * (width/w); 
+				}
+			case KeepRatioWithCropping(w,h):
+				if(width/w < height/h){
+					width = w * (height/h); 
+				}else{
+					height = h * (width/w); 
+				}
+
+
+		}
+		//TODO add option to not scale up?
+
+		//TODO support drawingBufferWidth < windowWidth and drawingBufferHeight < windowHeight
+
+		var x : Float = 0;
+		var y : Float = 0;
+		switch(_option.viewportPosition){
+			case Center : 
+				x = (windowWidth - width) / 2;
+				y = (windowHeight - height) / 2;
+			case TopLeft : 
+				y = (windowHeight - height);
+			case Top : 
+				x = (windowWidth - width) / 2;
+				y = (windowHeight - height);
+			case TopRight:
+				x = (windowWidth - width);
+				y = (windowHeight - height);
+			case Right:
+				x = (windowWidth - width);
+				y = (windowHeight - height) / 2;
+			case BottomRight:
+				x = (windowWidth - width);
+			case Bottom:
+				x = (windowWidth - width) / 2;
+			case BottomLeft:
+			case Left:
+				y = (windowHeight - height) / 2;
+
+		}
+
+		//TODO check if not changed
+		_setViewPort(x, y, width, height);
+		
+	}
+
 	inline public function setViewPort(x : Float, y : Float, width : Float, height : Float){
-		_option.autoViewPort = false;
+		_option.viewportType = Manual;
 		_setViewPort(x,y, width, height);
+	}
+
+	public function setviewportChangeCallback(callback : Int->Int->Int->Int->Void){
+		_viewportChangeCallback = callback;
 	}
 
 	inline private function _setViewPort(x : Float, y : Float, width : Float, height : Float){
 		gl.viewport(Std.int(x), Std.int(y), Std.int(width) ,  Std.int(height));
+		if(_viewportChangeCallback != null){
+			_viewportChangeCallback(Std.int(x), Std.int(y), Std.int(width) ,  Std.int(height));
+		}
 	}
 
 	inline public function clearWith(r : Float, g : Float, b : Float, a : Float):Void{
