@@ -45,7 +45,7 @@ class GPUProgramMacro{
                         kind: FVar(macro : loka.gl.GL,macro null),
                         };
         classBuilder.addMember(glMember);
-
+        
         var nativeProgramMember = {
                         name: "_nativeProgram",
                         pos: pos,
@@ -53,6 +53,7 @@ class GPUProgramMacro{
                         kind: FVar(macro : loka.gl.GL.GLProgram,macro null),
                         };
         classBuilder.addMember(nativeProgramMember);
+        
 
         var constructor = classBuilder.getConstructor();
         constructor.isPublic = false;

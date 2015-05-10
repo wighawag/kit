@@ -42,7 +42,8 @@ class GPU{
 	
 	static var _gpu : GPU;
 
-	public var gl(default,null) : GL; //TODO make it private
+	@:allow(glee)
+	private var gl : GL; //TODO make it private
 
 	var _window : Window;
 	var _option : GPUOption;
@@ -211,7 +212,7 @@ class GPU{
 
 		}
 
-		//TODO check if not changed
+		
 		_setViewPort(x, y, width, height);
 		
 	}
@@ -226,18 +227,20 @@ class GPU{
 	}
 
 	inline private function _setViewPort(x : Float, y : Float, width : Float, height : Float){
-		viewportX = Std.int(x);
-		viewportY = Std.int(y);
-		viewportWidth = Std.int(width);
-		viewportHeight = Std.int(height);
-		gl.viewport(viewportX, viewportY, viewportWidth, viewportHeight);
-		if(_viewportChangeCallback != null){
-			_viewportChangeCallback(viewportX, viewportY, viewportWidth , viewportHeight);
+		if(width != viewportWidth || height != viewportHeight || x != viewportX || y != viewportY){
+			viewportX = Std.int(x);
+			viewportY = Std.int(y);
+			viewportWidth = Std.int(width);
+			viewportHeight = Std.int(height);
+			gl.viewport(viewportX, viewportY, viewportWidth, viewportHeight);
+			if(_viewportChangeCallback != null){
+				_viewportChangeCallback(viewportX, viewportY, viewportWidth , viewportHeight);
+			}	
 		}
 	}
 
 	inline public function clearWith(r : Float, g : Float, b : Float, a : Float):Void{
-		gl.clearColor(r,g,b,a);
+		gl.clearColor(r,g,b,a); //TODO caching ?
 		gl.clear(GL.COLOR_BUFFER_BIT);
 	}
 
@@ -247,6 +250,18 @@ class GPU{
 
 	inline public function uploadCubeTexture(negx : Image,negy : Image,negz : Image,posx : Image,posy : Image,posz : Image) : GPUCubeTexture{
 		return GPUCubeTexture.upload(this, negx,negy,negz,posx,posy,posz);
+	}
+
+	inline public function enableBlending(){
+		gl.enable(GL.BLEND);
+	}
+
+	inline public function disableBlending(){
+		gl.disable(GL.BLEND);
+	}
+
+	inline public function setBlendingFunc(sfactor:Int, dfactor:Int){
+		gl.blendFunc(sfactor, dfactor);
 	}
 
 }
