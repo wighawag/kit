@@ -32,4 +32,24 @@ abstract Vec3(Float32Array){
 	inline function set_z(v:Float):Float{
 		return this[2] = v;
 	}
+
+
+	//TODO check if that makes sense
+	/**
+	* Transforms the vec3 with a mat4.
+	*
+	* @param {vec3} out the receiving vector
+	* @param {vec3} a the vector to transform
+	* @param {mat4} m matrix to transform with
+	* @returns {vec3} out
+	*/
+	inline public function transformMat4(out : Vec3, m : Mat4) : Vec3 {
+		var x = this[0];
+		var y = this[1];
+		var z = this[2];
+		out.x = m[0] * x + m[4] * y + m[8] * z + m[12];
+		out.y = m[1] * x + m[5] * y + m[9] * z + m[13];
+		out.z = m[2] * x + m[6] * y + m[10] * z + m[14];
+		return out;
+	}
 }

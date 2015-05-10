@@ -1,4 +1,4 @@
-uniform mat4 view;
+uniform mat4 viewproj;
 attribute vec3 position;
 attribute float alpha;
 attribute vec2 texCoords;
@@ -8,5 +8,5 @@ varying float vAlpha;
 void main(void) {
 	vTextureCoord = texCoords;
 	vAlpha = alpha;
-    gl_Position = view*vec4(position,1.0);
+    gl_Position = viewproj*vec4(position,1.0);
 }

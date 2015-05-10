@@ -2,6 +2,7 @@ package korrigan;
 
 import glmat.Mat4;
 import glmat.Vec4;
+import glmat.Vec3;
 
 using glmat.Mat4;
 
@@ -158,6 +159,10 @@ class TransformationContext{
 
 	public function transform(vec : Vec4):Void{
 		vec.transformMat4(vec, getTopState().matrix);
+	}
+
+	public function transformVec3(vec3 : Vec3):Void{
+		vec3.transformMat4(vec3, getTopState().matrix);
 	}
 }
 
