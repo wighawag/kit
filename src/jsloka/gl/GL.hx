@@ -1,6 +1,7 @@
 package jsloka.gl; 
 
 import jsloka.asset.Image;
+import jsloka.asset.Video;
 import js.html.webgl.RenderingContext;
 
 import jsloka.util.ArrayBufferView;
@@ -1177,6 +1178,10 @@ abstract GL(RenderingContext) {
 
     public inline function texImage2DViaImage(target: Int, level : Int, internalformat:Int, format:Int, type:Int, image : Image) : Void{
         this.texImage2D(target, level, internalformat, format, type, image);
+    }
+
+    public inline function texImage2DViaVideo(target: Int, level : Int, internalformat:Int, format:Int, type:Int, video : Video) : Void{
+        this.texImage2D(target, level, internalformat, format, type, video);
     }
 
 
