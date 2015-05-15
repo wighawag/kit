@@ -10,6 +10,8 @@ using belt.MacroUtils;
 class GPUBufferMacro{
 
     static var bufferTypes : Map<String,ComplexType> = new Map();
+    static var bufferTypeNames : Map<String,String> = new Map();
+    static var numBufferTypes : Int =0;
 
 	macro static public function apply() : ComplexType{
 
@@ -223,11 +225,29 @@ class GPUBufferMacro{
 
     static private function getBufferClassPathFromAttributes(attributes : Array<glee.GLSLShaderGroup.Attribute>): TypePath{
         var bufferClassName =  "Buffer_";
+        attributes = attributes.copy();
+        attributes.sort(function(x,y){
+            if(x.name == y.name){
+                return 0;
+            }
+            return x.name < y.name ? -1 : 1;
+            });
         for (attribute in attributes){
             bufferClassName += attribute.name + attribute.type;
         }
         bufferClassName = StringTools.urlEncode(bufferClassName);
         bufferClassName = StringTools.replace(bufferClassName,"%","_");
+
+        if (bufferTypeNames.exists(bufferClassName)){
+            //trace("already generated " + bufferClassPath.name);
+            bufferClassName = bufferTypeNames[bufferClassName];
+        }else{
+            //TODO use different naming
+            numBufferTypes++;
+            var newBufferClassName = "Buffer_" + numBufferTypes;
+            bufferTypeNames[bufferClassName] = newBufferClassName;
+            bufferClassName = newBufferClassName;
+        }
         
         var bufferClassPath = {pack:["glee", "buffer"],name:bufferClassName};
 
