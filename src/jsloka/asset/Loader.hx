@@ -2,6 +2,7 @@ package jsloka.asset;
 
 import jsloka.asset.Image;
 import js.html.Document;
+import jsloka.asset.Video;
 
 
 
@@ -30,5 +31,26 @@ abstract Loader(Document){
 		http.onError = error;
 		//TODO ? http.onStatus = 
 		http.request();
+	}
+
+	//TODO macro embedding of Video
+	inline public function loadVideo(url : String, success : Video->Void, error : String -> Void):Void{
+		var video : Video = cast this.createElement('video');
+
+		//TODO support error and type detection (from extension)
+		if (video.canPlayType('video/mp4').length > 0) {
+ 			video.src = 'loop1.mp4';
+			untyped video.autoPlay = false;
+			video.loop = false;
+			untyped video.oncanplay = function(){
+				success(video);
+			};
+			untyped video.onloadedmetadata = function () {
+		        //TODO ?
+		    };
+		}else{
+			error("cannot play the video (mp4 not supported)");
+		}
+
 	}
 }
