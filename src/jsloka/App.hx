@@ -36,6 +36,13 @@ class App{
 		    //add it to the document
 		    js.Browser.document.body.appendChild(_canvas);
 	    }
+
+	    //required to get focus and thus get keyboard events
+	    _canvas.tabIndex = 1;
+
+	    //focus the canvas by default (TODO : check and add this somewhere else to get back focus)
+	    _canvas.focus();
+
 	    return _canvas;
 	}
 
@@ -56,7 +63,7 @@ class App{
 	    return _window;
 	}	
 
-	@:access(jsloka.input.Mouse.new)
+	@:access(jsloka.input.Mouse)
 	public static function initMouse() : Mouse{
 		if(_mouse != null){
 			trace("ERROR : mouse already initialised");
@@ -68,7 +75,7 @@ class App{
 		return _mouse;
 	}	
 
-	@:access(jsloka.input.Keyboard.new)
+	@:access(jsloka.input.Keyboard)
 	public static function initKeyboard() : Keyboard{
 		if(_keyboard != null){
 			trace("ERROR : keyboard already initialised");

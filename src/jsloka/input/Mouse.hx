@@ -1,34 +1,23 @@
 package jsloka.input;
-//TODO should use events : create Abstract Event to keep same signature
 
 import js.html.CanvasElement;
-import js.html.MouseEvent;
+import jsloka.input.MouseEvent;
 
-class Mouse{
+abstract Mouse(CanvasElement){
 
-	var _canvas : CanvasElement;
-
-	public var x(default,null):Float;
-	public var y(default,null):Float;
-	public var down(default,null):Bool;
-	
-	private function new(canvas : CanvasElement){
-		_canvas = canvas;
-		_canvas.addEventListener('mousemove', mouseMoved, false);
-		_canvas.addEventListener('mousedown', mouseDowned, false);
-		_canvas.addEventListener('mouseup', mouseUped, false);
+	inline private function new(canvas : CanvasElement){
+		this = canvas;
 	}
 
-	function mouseMoved(e : MouseEvent):Void {
-        x = e.clientX == null ? e.clientX : e.pageX; 
-		y = e.clientY == null ? e.clientX :  e.pageY;
+	inline public function onMouseMove(f : MouseEvent -> Void, ?useCapture : Bool):Void {
+       this.addEventListener("mousemove",f, useCapture);
     }
 
-    function mouseDowned(e : MouseEvent):Void {
-        down = true;
+   inline public function onMouseDown(f : MouseEvent -> Void, ?useCapture : Bool):Void {
+       this.addEventListener("mousedown",f, useCapture);
     }
 
-    function mouseUped(e : MouseEvent):Void {
-        down = false;
+  inline public function onMouseUp(f : MouseEvent -> Void, ?useCapture : Bool):Void {
+       this.addEventListener("mouseup",f, useCapture);
     }
 }

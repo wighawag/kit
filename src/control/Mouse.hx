@@ -1,34 +1,34 @@
 package control;
 //TODO support multi platform
 
-import js.html.CanvasElement;
-import js.html.MouseEvent;
+
+import loka.input.MouseEvent;
 
 class Mouse{
 
-	var _canvas : CanvasElement;
+	var _mouse : loka.input.Mouse;
 
 	public var x(default,null):Float;
 	public var y(default,null):Float;
 	public var down(default,null):Bool;
 	
-	private function new(canvas : CanvasElement){
-		_canvas = canvas;
-		_canvas.addEventListener('mousemove', mouseMoved, false);
-		_canvas.addEventListener('mousedown', mouseDowned, false);
-		_canvas.addEventListener('mouseup', mouseUped, false);
+	private function new(mouse : loka.input.Mouse){
+		_mouse = mouse;
+		_mouse.onMouseMove(mouseMove);
+		_mouse.onMouseDown(mouseDown);
+		_mouse.onMouseUp(mouseUp);
 	}
 
-	function mouseMoved(e : MouseEvent):Void {
-        x = e.clientX == null ? e.clientX : e.pageX; 
-		y = e.clientY == null ? e.clientX :  e.pageY;
+	function mouseMove(e : loka.input.MouseEvent):Void {
+        x = e.mouseX; 
+		y = e.mouseY;
     }
 
-    function mouseDowned(e : MouseEvent):Void {
+    function mouseDown(e : loka.input.MouseEvent):Void {
         down = true;
     }
 
-    function mouseUped(e : MouseEvent):Void {
+    function mouseUp(e : loka.input.MouseEvent):Void {
         down = false;
     }
 }

@@ -16,7 +16,7 @@ abstract Loader(Document){
 	inline public function loadImage(url : String, success : Image->Void, error : String -> Void):Void{
 		var image = new js.html.Image();
 		image.onload = function(_){
-			success(image);
+			success(new Image(image));
 		}
 		image.onerror = function(_){
 			error("failed to load " + url);
@@ -35,7 +35,7 @@ abstract Loader(Document){
 
 	//TODO macro embedding of Video
 	inline public function loadVideo(url : String, success : Video->Void, error : String -> Void):Void{
-		var video : Video = cast this.createElement('video');
+		var video : js.html.VideoElement = cast this.createElement('video');
 
 		//TODO support error and type detection (from extension)
 		if (video.canPlayType('video/mp4').length > 0) {
@@ -43,7 +43,7 @@ abstract Loader(Document){
 			untyped video.autoPlay = false;
 			video.loop = false;
 			untyped video.oncanplay = function(){
-				success(video);
+				success(new Video(video));
 			};
 			untyped video.onloadedmetadata = function () {
 		        //TODO ?

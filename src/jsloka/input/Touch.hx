@@ -2,6 +2,7 @@ package loka.input;
 
 import js.html.CanvasElement;
 
+//TODO abstract
 class Touch{
 
 	var _canvas : CanvasElement;

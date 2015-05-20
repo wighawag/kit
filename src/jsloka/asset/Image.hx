@@ -1,3 +1,8 @@
 package jsloka.asset;
 
-typedef Image = js.html.Image;
+
+abstract Image(js.html.Image) to(js.html.Image){
+	inline public function new(image : js.html.Image){
+		this = image;
+	}
+}
