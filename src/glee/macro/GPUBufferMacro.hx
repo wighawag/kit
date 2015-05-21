@@ -1,6 +1,7 @@
 package glee.macro;
 
 import haxe.macro.Expr;
+import haxe.macro.Type;
 import haxe.macro.Context;
 import tink.macro.Functions;
 import tink.macro.Member;
@@ -13,12 +14,54 @@ class GPUBufferMacro{
     static var bufferTypeNames : Map<String,String> = new Map();
     static var numBufferTypes : Int =0;
 
+    static var nonIndexBufferTypes : Map<String,ComplexType> = new Map();
+
 	macro static public function apply() : ComplexType{
 
         var pos = Context.currentPos();
 
         var localType = Context.getLocalType();
 
+        var bufferType = GPUBufferMacro.getBufferTypeFromLocalType(localType,pos); 
+        
+        var typePath = 
+        switch(bufferType){
+            case TPath(p): p;
+            default: null;
+        }
+
+        if(typePath == null){
+            //TODO error
+            return null;
+        }
+        
+        if(nonIndexBufferTypes.exists(typePath.name)){
+            return nonIndexBufferTypes[typePath.name];
+        }
+
+        var bufferName = "NonIndexed" + typePath.name;
+
+        var buffer = generateNonIndexedBuffer(bufferName, typePath, pos);
+        nonIndexBufferTypes[typePath.name] = buffer;
+
+        return buffer;
+    }
+
+    static function generateNonIndexedBuffer(name : String, superClass : TypePath, pos : Position){
+        var fields = []; 
+
+        var definedType : TypeDefinition = {
+            pos:pos,
+            pack:["glee", "buffer"],
+            name:name,
+            kind:TDClass(superClass,[], false), 
+            fields:fields};
+        Context.defineType(definedType);
+
+        return TPath({pack:["glee","buffer"], name:name});
+    }
+
+    static public function getBufferTypeFromLocalType(localType : Null<Type>, pos : Position) : ComplexType{
         var typeParam = switch (localType) {
             case TInst(_,[tp]):
                 switch(tp){
@@ -266,4 +309,5 @@ class GPUBufferMacro{
        
 
 	}
+
 }
