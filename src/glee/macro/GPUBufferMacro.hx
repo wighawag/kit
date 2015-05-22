@@ -145,6 +145,7 @@ class GPUBufferMacro{
         var getNumVerticesWrittenBody = macro {var max : Float = 0;};
 
         var rewindBody = macro {
+            _numIndicesWritten = 0; 
         };
         
 

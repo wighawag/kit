@@ -43,7 +43,13 @@ class GPUIndexedBufferMacro{
     }
 
     static function generateIndexedBuffer(name : String, superClass : TypePath, pos : Position){
-    	var fields = []; //TODO add writeIndex
+
+        //TODO do not use _writeIndex in base class (GPUBufferBase)? 
+
+    	var fields = []; 
+        var arguments = [Functions.toArg("i",macro : Int)];
+        var body = macro _writeIndex(i);
+        fields.push(Member.method("writeIndex",Functions.func(body,arguments)));
 
     	var definedType : TypeDefinition = {
     		pos:pos,

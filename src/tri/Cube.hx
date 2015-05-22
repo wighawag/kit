@@ -17,47 +17,59 @@ class Cube{
 	}
 
 	public function write(buffer : GPUIndexedBuffer<{position:Vec3}>){
+
+    var numVerticesSoFar = buffer.getNumVerticesWritten();
+    buffer.writeIndex(numVerticesSoFar+0);
+    buffer.writeIndex(numVerticesSoFar+1);
+    buffer.writeIndex(numVerticesSoFar+2);
+    buffer.writeIndex(numVerticesSoFar+2);
+    buffer.writeIndex(numVerticesSoFar+3);
+    buffer.writeIndex(numVerticesSoFar+0);
+
+    buffer.writeIndex(numVerticesSoFar+4);
+    buffer.writeIndex(numVerticesSoFar+1);
+    buffer.writeIndex(numVerticesSoFar+0);
+    buffer.writeIndex(numVerticesSoFar+0);
+    buffer.writeIndex(numVerticesSoFar+5);
+    buffer.writeIndex(numVerticesSoFar+4);
+
+    buffer.writeIndex(numVerticesSoFar+2);
+    buffer.writeIndex(numVerticesSoFar+3);
+    buffer.writeIndex(numVerticesSoFar+7);
+    buffer.writeIndex(numVerticesSoFar+7);
+    buffer.writeIndex(numVerticesSoFar+6);
+    buffer.writeIndex(numVerticesSoFar+2);
+
+    buffer.writeIndex(numVerticesSoFar+4);
+    buffer.writeIndex(numVerticesSoFar+5);
+    buffer.writeIndex(numVerticesSoFar+7);
+    buffer.writeIndex(numVerticesSoFar+7);
+    buffer.writeIndex(numVerticesSoFar+6);
+    buffer.writeIndex(numVerticesSoFar+4);
+
+    buffer.writeIndex(numVerticesSoFar+0);
+    buffer.writeIndex(numVerticesSoFar+3);
+    buffer.writeIndex(numVerticesSoFar+7);
+    buffer.writeIndex(numVerticesSoFar+7);
+    buffer.writeIndex(numVerticesSoFar+5);
+    buffer.writeIndex(numVerticesSoFar+0);
+
+    buffer.writeIndex(numVerticesSoFar+1);
+    buffer.writeIndex(numVerticesSoFar+4);
+    buffer.writeIndex(numVerticesSoFar+2);
+    buffer.writeIndex(numVerticesSoFar+2);
+    buffer.writeIndex(numVerticesSoFar+0);
+    buffer.writeIndex(numVerticesSoFar+1);
+
 		buffer.write_position(-width/2, height/2, -depth/2);	
 		buffer.write_position(-width/2, -height/2, -depth/2);	
 		buffer.write_position(width/2, -height/2, -depth/2);
-		buffer.write_position(width/2, -height/2, -depth/2);	
 		buffer.write_position(width/2, height/2, -depth/2);	
-		buffer.write_position(-width/2, height/2, -depth/2);	
-
 		buffer.write_position(-width/2, -height/2, depth/2);	
-		buffer.write_position(-width/2, -height/2, -depth/2);	
-		buffer.write_position(-width/2, height/2, -depth/2);
-		buffer.write_position(-width/2, height/2, -depth/2);	
 		buffer.write_position(-width/2, height/2, depth/2);	
-		buffer.write_position(-width/2, -height/2, depth/2);	
-  
-  		buffer.write_position(width/2, -height/2, -depth/2);	
-  		buffer.write_position(width/2, -height/2, depth/2);	
-  		buffer.write_position(width/2, height/2, depth/2);	
-  		buffer.write_position(width/2, height/2, depth/2);	
-  		buffer.write_position(width/2, height/2, -depth/2);	
-  		buffer.write_position(width/2, -height/2, -depth/2);	
-
-		buffer.write_position(-width/2, -height/2, depth/2);	
-  		buffer.write_position(-width/2, height/2, depth/2);	
-  		buffer.write_position(width/2, height/2, depth/2);	
-  		buffer.write_position(width/2, height/2, depth/2);	
-  		buffer.write_position(width/2, -height/2, depth/2);	
-  		buffer.write_position(-width/2, -height/2, depth/2);	
-   
-  		buffer.write_position(-width/2, height/2, -depth/2);	
-  		buffer.write_position(width/2, height/2, -depth/2);	
-  		buffer.write_position(width/2, height/2, depth/2);	
-  		buffer.write_position(width/2, height/2, depth/2);	
-  		buffer.write_position(-width/2, height/2, depth/2);	
-  		buffer.write_position(-width/2, height/2, -depth/2);	
-  
-  		buffer.write_position(-width/2, -height/2, -depth/2);	
-  		buffer.write_position(-width/2, -height/2, depth/2);	
-  		buffer.write_position(width/2, -height/2, -depth/2);	
-  		buffer.write_position(width/2, -height/2, -depth/2);	
-  		buffer.write_position(-width/2, -height/2, depth/2);	
-  		buffer.write_position(width/2, -height/2, depth/2);	
+ 		buffer.write_position(width/2, -height/2, depth/2);	
+ 		buffer.write_position(width/2, height/2, depth/2);	
+  	
 	}
 
 

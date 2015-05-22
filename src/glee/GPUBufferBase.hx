@@ -15,15 +15,20 @@ class GPUBufferBase{
 	public var nativeIndexBuffer(default,null) : GLBuffer;
 	var _int16Array : Int16Array;
 
-	var _lastIndexPosition : Int;
+	var _numIndicesWritten : Int;
 	public var indexUploaded(default,null) : Bool;
 	
 	public var uploaded(default,null) : Bool;
+
+	public function getNumIndicesWritten(){
+		return _numIndicesWritten;
+	}
 	
 	public function new(gpu : GPU, usage : Int){
 		_gl = gpu.gl;
 		_usage = usage;
 		nativeBuffer = _gl.createBuffer();
+		_numIndicesWritten = 0;
 	}
 
 	private function _writeIndex(i : Int){
@@ -31,12 +36,13 @@ class GPUBufferBase{
 			nativeIndexBuffer = _gl.createBuffer();
 			_int16Array = new loka.util.Int16Array(512);
 		}
-        if (_int16Array.length <= _lastIndexPosition + 1) {
+        if (_int16Array.length <= _numIndicesWritten) {
             var newArray = new loka.util.Int16Array(_int16Array.length * 2); //TODO inline growing in javascript
             //TODO : copy values
             _int16Array = newArray;
         }
-        _int16Array[++_lastIndexPosition] = i;
+        _int16Array[_numIndicesWritten] = i;
+        _numIndicesWritten++;
         indexUploaded = false;
 	}
 

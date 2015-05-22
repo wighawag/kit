@@ -128,7 +128,7 @@ class GPUProgramMacro{
                     arguments.push(Functions.toArg("y", macro : Float));
                     arguments.push(Functions.toArg("z", macro : Float));
                     arguments.push(Functions.toArg("w", macro : Float));
-                     body.append(macro _gl.uniform4f($i{uniformLocationVariableName}, x, y, z, w));
+                    body.append(macro _gl.uniform4f($i{uniformLocationVariableName}, x, y, z, w));
                     //arguments.push(Functions.toArg("vec", uniform.type));
                     //body.append(macro _gl.uniform4f($i{uniformLocationVariableName}, vec.x, vec.y, vec.z, vec.w));
                 case "Int":
@@ -237,11 +237,17 @@ class GPUProgramMacro{
 
         drawBody.append(macro if (!buffer.uploaded){buffer.upload();});
         drawBody.append(macro _gl.bindBuffer (loka.gl.GL.ARRAY_BUFFER, buffer.nativeBuffer));
-        drawBody.append(macro _gl.drawArrays(loka.gl.GL.TRIANGLES, 0, buffer.getNumVerticesWritten()));//Std.int(buffer.numVertices/2))); // TODO use index, else have to specify number of triangles
+        drawBody.append(macro 
+            if(buffer.nativeIndexBuffer != null){
+                _gl.bindBuffer (loka.gl.GL.ELEMENT_ARRAY_BUFFER, buffer.nativeIndexBuffer);  
+                _gl.drawElements(loka.gl.GL.TRIANGLES, buffer.getNumIndicesWritten(), loka.gl.GL.UNSIGNED_SHORT, 0);
+            }else{
+                _gl.drawArrays(loka.gl.GL.TRIANGLES, 0, buffer.getNumVerticesWritten());        
+            }
+        );//Std.int(buffer.numVertices/2))); // TODO use index, else have to specify number of triangles
 
-        drawBody.append(macro  _gl.useProgram(null));
-        //trace("--------------------DRAW BODY -----------------------");
-        //trace(drawBody.toString());
+        drawBody.append(macro  _gl.useProgram(null)); //TODO remove ?
+        
 
         var bufferClass = glee.macro.GPUBufferMacro.getBufferClassFromAttributes(shaderGroup.attributes);
         var arguments = [Functions.toArg("buffer",bufferClass)];
