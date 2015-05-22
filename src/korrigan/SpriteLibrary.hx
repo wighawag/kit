@@ -4,8 +4,8 @@ import glmat.Vec4;
 import korrigan.TextureAtlas.CutOut;
 
 typedef TexturedQuadMeshData =  {x1:Float,y1:Float, x2:Float,y2:Float,u1:Float,v1:Float, u2:Float,v2:Float, refX : Float, refY : Float};
-typedef FrameData = {textureCutOut : String, ?meshData : TexturedQuadMeshData, ?scaleX : Float, ?scaleY : Float};
-typedef AnimationData = Array<FrameData>; //TODO add timing....
+typedef FrameData = {textureCutOut : String, ?meshData : TexturedQuadMeshData, ?overrideMsDuration : Int, ?scaleX : Float, ?scaleY : Float};
+typedef AnimationData = {frames:Array<FrameData>, defaultMsDuration:Int,?loopStartFrame:Int};
 typedef SpriteData = Map<String,AnimationData>;
 typedef SpriteDataSet = Map<String,SpriteData>;
 
@@ -83,12 +83,73 @@ class FrameAnimation{
 	public var id(default, null) : String;
     var frames : Array<Frame>;
 
-    public function new(id : String, frames : Array<FrameData>){
-    	this.frames = new Array();
-    	var i = 0;
-        for (frame in frames){
-            this.frames.push(new Frame(i,frame));
-            i++;
+    public var defaultMsDuration : Int;  // seconds
+    public var loopStartFrame : Int;
+
+    private var totalMsDuration : Int;
+    private var loopMsDuration : Int;
+    private var averageMsDuration : Int;
+
+    public function new(id : String, animationData : AnimationData){
+    	this.defaultMsDuration = animationData.defaultMsDuration;
+        this.loopStartFrame = animationData.loopStartFrame != null ? animationData.loopStartFrame : 0; //TODO deicde if default to zero?
+
+        var gcd : Int = 0;
+
+        totalMsDuration = 0;
+        this.frames = new Array<Frame>();
+        for (frame in animationData.frames){
+            var frameMsDuration : Int = getFrameDuration(frame);
+
+            if(gcd == 0){
+                gcd = frameMsDuration;
+            }
+            else{
+                gcd = computeGCD(gcd, frameMsDuration);
+            }
+            totalMsDuration += frameMsDuration;
+        }
+
+        var counter = 0;
+        for (frame in animationData.frames){
+            var frameMsDuration : Int = getFrameDuration(frame);
+            var numFrames = Std.int(frameMsDuration / gcd);
+            for (i in 0...numFrames){
+                this.frames.push(new Frame(counter,frame)); // do we want counter or global frame num ?
+            }
+            counter++; 
+        }
+        
+
+        // Work as GCD calculated
+        averageMsDuration = Std.int(totalMsDuration / this.frames.length);
+        loopMsDuration = (this.frames.length - loopStartFrame) * averageMsDuration;
+    	
+    }
+
+    inline private function getFrameDuration(frame : FrameData) : Int{
+        if (frame.overrideMsDuration != null && frame.overrideMsDuration > 0){
+            return frame.overrideMsDuration;
+        }else{
+            return this.defaultMsDuration;
+        }
+    }
+
+    inline private function computeGCD(a : Int, b : Int) : Int{
+
+        while (a != 0 && b != 0)
+        {
+            if (a > b){
+                a = a % b;
+            }else{
+                b = b % a;
+            }
+        }
+
+        if (a == 0){
+            return b;
+        }else{
+            return a;
         }
     }
 
@@ -129,7 +190,7 @@ class SpriteLibrary{
 			var spriteData : SpriteData = Reflect.field(spriteSet,spriteId);
 			for (animationId in Reflect.fields(spriteData)){
 				var animationData : AnimationData = Reflect.field(spriteData, animationId);
-				for(frameData in animationData){
+				for(frameData in animationData.frames){
 					var originalCutOut : CutOut = Reflect.field(textureAtlas.cutOuts,frameData.textureCutOut);
 		            var uRatio = 1 / textureAtlas.width;
 		            var vRatio = 1 / textureAtlas.height;
