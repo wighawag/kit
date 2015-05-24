@@ -19,5 +19,5 @@ typedef TextureAtlas = {
 	bitmapId : String,
 	width : Int,
 	height : Int,
-	cutOuts : Map<String, CutOut>
+	cutOuts : Map<String, CutOut> //TODO DynamicAccess
 }

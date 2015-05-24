@@ -112,10 +112,11 @@ class FrameAnimation{
 
         var counter = 0;
         for (frame in animationData.frames){
+            var newFrame = new Frame(counter,frame);
             var frameMsDuration : Int = getFrameDuration(frame);
             var numFrames = Std.int(frameMsDuration / gcd);
             for (i in 0...numFrames){
-                this.frames.push(new Frame(counter,frame)); // do we want counter or global frame num ?
+                this.frames.push(newFrame); // do we want counter or global frame num ?
             }
             counter++; 
         }
