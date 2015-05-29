@@ -2,29 +2,9 @@ package korrigan;
 
 import glmat.Vec4;
 import korrigan.TextureAtlas.CutOut;
-
-typedef TexturedQuadMeshData =  {x1:Float,y1:Float, x2:Float,y2:Float,u1:Float,v1:Float, u2:Float,v2:Float, refX : Float, refY : Float};
-typedef FrameData = {textureCutOut : String, ?meshData : TexturedQuadMeshData, ?overrideMsDuration : Int, ?scaleX : Float, ?scaleY : Float};
-typedef AnimationData = {frames:Array<FrameData>, defaultMsDuration:Int,?loopStartFrame:Int};
-typedef SpriteData = Map<String,AnimationData>;
-typedef SpriteDataSet = Map<String,SpriteData>;
-
-typedef TexturePlacement = {
-	//textureId :textureCutOut.textureId,
-    srcX1 : Float,
-    srcY1 : Float,
-    srcX2 : Float,
-    srcY2 : Float,
-    dstX1 : Float,
-    dstY1 : Float,
-    dstX2 : Float,
-    dstY2 : Float,
-    dstX3 : Float,
-    dstY3 : Float,
-    dstX4 : Float,
-    dstY4 : Float,
-    dstZ : Float,
-}
+import boot.Assets;
+import boot.AssetId;
+import korrigan.SpriteDataSet;
 
 class TexturedQuadMesh{
 
@@ -65,13 +45,13 @@ class Frame{
 		//TODO if frameData.meshData == null
 		this.mesh = new TexturedQuadMesh(frameData.meshData);
 		if (Reflect.hasField(frameData,"scaleX")){
-			this.scaleX = frameData.scaleX;	
+			this.scaleX = frameData.scaleX;
 		}else{
 			this.scaleX = 1;
 		}
-		
+
 		if (Reflect.hasField(frameData,"scaleY")){
-			this.scaleY = frameData.scaleY;	
+			this.scaleY = frameData.scaleY;
 		}else{
 			this.scaleY = 1;
 		}
@@ -118,14 +98,14 @@ class FrameAnimation{
             for (i in 0...numFrames){
                 this.frames.push(newFrame); // do we want counter or global frame num ?
             }
-            counter++; 
+            counter++;
         }
-        
+
 
         // Work as GCD calculated
         averageMsDuration = Std.int(totalMsDuration / this.frames.length);
         loopMsDuration = (this.frames.length - loopStartFrame) * averageMsDuration;
-    	
+
     }
 
     inline private function getFrameDuration(frame : FrameData) : Int{
@@ -179,14 +159,18 @@ class Sprite{
 	}
 }
 
-class SpriteLibrary{
+class Sprites{
 	var _sprites : Map<String,Sprite>;
 
-	public function new(){
-		_sprites = new Map();
+	private function new(sprites : Map<String,Sprite>){
+		_sprites = sprites;
 	}
 
-	public function loadSprites(spriteSet : SpriteDataSet, textureAtlas : TextureAtlas){
+	public static function createSprites(assets : Assets, spritePath : AssetId) : Sprites{
+    var spriteMap = new Map<String,Sprite>();
+    var spriteDataSet : SpriteDataSet = assets.get(spritePath);
+    var spriteSet = spriteDataSet.sprites;
+    var textureAtlas : TextureAtlas = assets.get(Assets.fromFolder(spriteDataSet.textureAtlas));
 		for(spriteId in Reflect.fields(spriteSet)){
 			var spriteData : SpriteData = Reflect.field(spriteSet,spriteId);
 			for (animationId in Reflect.fields(spriteData)){
@@ -210,23 +194,23 @@ class SpriteLibrary{
 		            };
 				}
 			}
-			
-            var sprite = new Sprite(spriteId, spriteData);
-            _sprites[spriteId] = sprite;
-        }
+        var sprite = new Sprite(spriteId, spriteData);
+        spriteMap[spriteId] = sprite;
+    }
+    return new Sprites(spriteMap);
 	}
 
 	public function draw(buffer : glee.GPUBuffer<NormalTexturedProgram>, context : korrigan.TransformationContext, spriteId : String, animationName : String, elapsedTime : Float, x : Float, y : Float, z : Float, ?width : Float = 0, ?height : Float = 0, ?keepRatio : Bool = true) : Void{
 		var placement = getTexturePlacement(context, spriteId, animationName, elapsedTime,x,y,z,width,height,keepRatio);
 
-		buffer.write_position(placement.dstX1, placement.dstY1, z);	
+		buffer.write_position(placement.dstX1, placement.dstY1, z);
 		buffer.write_position(placement.dstX3, placement.dstY3, z);
 		buffer.write_position(placement.dstX2, placement.dstY2, z);
 		buffer.write_position(placement.dstX4, placement.dstY4, z);
         buffer.write_position(placement.dstX2, placement.dstY2, z);
         buffer.write_position(placement.dstX3, placement.dstY3, z);
-        
-		
+
+
         buffer.write_alpha(context.alpha);
         buffer.write_alpha(context.alpha);
         buffer.write_alpha(context.alpha);
@@ -234,7 +218,7 @@ class SpriteLibrary{
         buffer.write_alpha(context.alpha);
         buffer.write_alpha(context.alpha);
 
-		
+
 		buffer.write_texCoords(placement.srcX1, placement.srcY1);
 		buffer.write_texCoords(placement.srcX1, placement.srcY2);
 		buffer.write_texCoords(placement.srcX2, placement.srcY1);
@@ -245,7 +229,7 @@ class SpriteLibrary{
 
 	public function getTexturePlacement(context : korrigan.TransformationContext, spriteId : String, animationName : String, elapsedTime : Float, x : Float, y : Float, z : Float, ?width : Float = 0, ?height : Float = 0, ?keepRatio : Bool = true) : TexturePlacement{
 		var sprite = _sprites[spriteId];
-	    
+
 	    var frame : Frame = null;
 	    var error = false;
         //TODO always upload an error texture (in debug mode only ?)
@@ -263,7 +247,7 @@ class SpriteLibrary{
 
         if(error){
             width = width == 0 ? 100 : width;
-            height = height == 0 ? 100 : height; 
+            height = height == 0 ? 100 : height;
             return null;
 //                {
 //                    textureId : "error",
@@ -296,7 +280,7 @@ class SpriteLibrary{
                 scaleX = scaleY = Math.min(scaleX,scaleY);
             }
 
-            var offsetX = mesh.refX * frame.scaleX; 
+            var offsetX = mesh.refX * frame.scaleX;
             var offsetY = mesh.refY * frame.scaleY;
 
             var targetX = - (offsetX * scaleX);

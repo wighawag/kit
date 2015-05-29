@@ -3,6 +3,10 @@ package boot;
 @:build(boot.AssetsFolder.apply("assets"))
 class Assets{
 
+	public static function fromFolder(path : String){
+		return "assets/" + path; 
+	}
+	
 	private var _assets : Map<AssetId,Dynamic>;
 
 	private function new(assets : Map<AssetId, Dynamic>){

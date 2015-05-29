@@ -77,7 +77,7 @@ class FileRef
         this.value = value;
        
         // replace forbidden characters to underscores, since variables cannot use these symbols.
-        this.name = name.split("-").join("_").split(".").join("__").split("/").join("_");
+        this.name = name.split("-").join("_").split(".").join("__").split("/").join("_").toUpperCase();
        
         // generate documentation
         this.documentation = "Reference to file on disk \"" + value + "\". (auto generated)";

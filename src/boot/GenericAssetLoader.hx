@@ -1,5 +1,6 @@
 package boot;
 
+import haxe.Json;
 import loka.asset.Loader;
 
 using StringTools;
@@ -18,9 +19,21 @@ class GenericAssetLoader{
 
 	var loader : Loader;
 
+	var textParseMap : Map<String,String->Dynamic>;
+
 	private function new(){
 		loader = new Loader();
+		textParseMap = new Map();
 	}
+
+	public function registerTextParserOnExtension(extension : String, parser: String->Dynamic){
+		textParseMap[extension] = parser;
+	}
+
+	//TODO
+	// public function registerJsonTypeOnExtension(extension : String){
+	// 	textParseMap.remove(extension);
+	// }
 
 	public function load(ids : Array<AssetId>):Future<AssetsOutcome>{
 
@@ -45,11 +58,11 @@ class GenericAssetLoader{
                     case Failure(e): return Failure(e);
                 }
             });
-            allFutures.push(future);         
-        }        
+            allFutures.push(future);
+        }
 
         var futureForAll : Future<Array<TmpOutcome>> = allFutures;
-        
+
         var futureTrigger : FutureTrigger<AssetsOutcome> = Future.trigger();
 
         futureForAll.handle(function(outcomes : Array<TmpOutcome>){
@@ -59,10 +72,10 @@ class GenericAssetLoader{
                 var atleastOneFailed = false;
                 for (outcome in outcomes){
                     switch(outcome){
-                        case Success(d): 
+                        case Success(d):
                             data.set(d.id,d.data);
                             successes.push(d.id);
-                        case Failure(error): 
+                        case Failure(error):
                             atleastOneFailed = true;
                             failures.push(error);
                     }
@@ -70,14 +83,14 @@ class GenericAssetLoader{
 
                 if(atleastOneFailed){
                     futureTrigger.trigger(Failure({
-                    	partialResult : new Assets(data), 
+                    	partialResult : new Assets(data),
                     	failures:failures,
                     	successes:successes
                     	}));
                 }else{
                     futureTrigger.trigger(Success(new Assets(data)));
                 }
-                
+
             });
 
         return futureTrigger.asFuture();
@@ -89,20 +102,24 @@ class GenericAssetLoader{
 		}
 		if(path.endsWith(".jpeg")){
 			return loadImage(path);
-		
+
 		}
 		if(path.endsWith(".jpg")){
 			return loadImage(path);
-		
+
 		}
 		if(path.endsWith(".json")){
-			return loadText(path);
+			return loadText(path, Json.parse);
 		}
 
+		var extensionIndex = path.lastIndexOf(".");
+		var extension = path.substr(extensionIndex);
+
+		var parser = textParseMap[extension];
 		//TODO unsuported
 		//for now default to text
-		return loadText(path);
 
+		return loadText(path, parser);
 	}
 
 	private function loadImage(path : String) : Future<Outcome<Dynamic, String>>{
@@ -115,11 +132,17 @@ class GenericAssetLoader{
 	    });
 	}
 
-	private function loadText(path : String) : Future<Outcome<Dynamic, String>>{
+	private function loadText(path : String, ?parser : String -> Dynamic) : Future<Outcome<Dynamic, String>>{
 
 		return Future.async(function (handler: Outcome<Dynamic, String>->Void) {
 			loader.loadText(path,
-				function (data) handler(Success(data)),
+				function (data) {
+					if(parser != null){
+						handler(Success(parser(data)));
+					}else{
+						handler(Success(data));
+					}
+					},
 				function (error) handler(Failure(error))
 				);
 	    });
