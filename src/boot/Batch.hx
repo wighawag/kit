@@ -66,7 +66,7 @@ class Batch<T> implements AssetStore<T> {
 
     private var dict : Map<AssetId,T>;
 
-    public function new(items : Map<AssetId,T>) {
+    private function new(items : Map<AssetId,T>) {
         dict = new Map();
         for (itemId in items.keys()){
             dict.set(itemId, items[itemId]);

@@ -39,7 +39,7 @@ abstract Loader(Document){
 
 		//TODO support error and type detection (from extension)
 		if (video.canPlayType('video/mp4').length > 0) {
- 			video.src = 'loop1.mp4';
+ 			video.src = url;
 			untyped video.autoPlay = false;
 			video.loop = false;
 			untyped video.oncanplay = function(){
