@@ -40,7 +40,7 @@ class Window{
 
 	function resizeCanvas(){ 
 		//TODO make it an option
-		var realToCSSPixels = Browser.window.devicePixelRatio != null ? Browser.window.devicePixelRatio  : 1;
+		var realToCSSPixels = 1.0;//TODO : Browser.window.devicePixelRatio != null ? Browser.window.devicePixelRatio  : 1;
 		var displayWidth  = Math.floor(width * realToCSSPixels);
 		var displayHeight = Math.floor(height * realToCSSPixels);
 	    
