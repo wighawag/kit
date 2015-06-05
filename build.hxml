@@ -1,0 +1,3 @@
+-main KitTest
+-js bin/Main.js
+-cp src
