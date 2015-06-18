@@ -2,4 +2,4 @@ package loka;
 
 typedef Window = jsloka.Window;
 
-typedef RenderFunction = jsloka.RenderFunction;
+typedef RenderFunction = jsloka.Window.RenderFunction;
