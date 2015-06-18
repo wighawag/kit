@@ -3,10 +3,10 @@ package jsloka;
 import js.Browser;
 import js.html.CanvasElement;
 import js.html.Event;
-import loka.gl.GL;
+import jsloka.gl.GL;
 import haxe.Timer;
 
-import loka.Window.RenderFunction;
+typedef RenderFunction = Float->Void;
 
 class Window{
 

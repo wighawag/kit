@@ -61,6 +61,15 @@
         "gl"
       ],
       "description": "matrix using FloatArray"
+    },
+    "control": {
+      "tags": [
+        "input"
+      ],
+      "description": "input (keyboard/mouse/touch/gamepad...)",
+      "dependencies": {
+        "": ""
+      }
     }
   },
   "name": "kit",
@@ -74,8 +83,8 @@
   "contributors": [
     "wighawag"
   ],
-  "releasenote": "add cosmos",
-  "version": "0.4.0",
+  "releasenote": "fix",
+  "version": "0.5.1",
   "url": "https://github.com/wighawag/kit",
   "dependencies": {
     "tink_macro": "0.5.0",

@@ -2,10 +2,10 @@ package jsloka;
 
 import js.Browser;
 import js.html.CanvasElement;
-import loka.gl.GL;
+import jsloka.gl.GL;
 import haxe.Timer;
-import loka.input.Mouse;
-import loka.input.Keyboard;
+import jsloka.input.Mouse;
+import jsloka.input.Keyboard;
 
 
 class App{

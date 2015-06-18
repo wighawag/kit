@@ -1,4 +1,4 @@
-package loka.input;
+package jsloka.input;
 
 import js.html.CanvasElement;
 
